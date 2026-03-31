@@ -30,10 +30,18 @@
             min-height: 100vh;
         }
 
-        /* --- Анимации --- */
         @keyframes slideUpFade {
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         header { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative; z-index: 10; }
@@ -47,7 +55,6 @@
         .progress-bar { display: flex; justify-content: space-between; margin-bottom: 25px; padding-bottom: 10px; font-size: 0.95rem; position: relative; }
         .progress-bar::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--border); z-index: 1; }
         
-        /* Етапите вече са кликваеми бутони */
         .stage-indicator { font-weight: 600; color: var(--secondary); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); opacity: 0.6; text-align: center; flex: 1; padding: 12px 5px; margin: 0 2px; border-radius: 8px 8px 0 0; position: relative; z-index: 2; border-bottom: 3px solid transparent; cursor: pointer; user-select: none; }
         .stage-indicator:hover { background-color: rgba(52, 152, 219, 0.08); opacity: 0.9; color: var(--primary); transform: translateY(-2px); }
         .stage-indicator.active { color: var(--primary); background-color: rgba(52, 152, 219, 0.15); box-shadow: 0 -4px 10px rgba(52, 152, 219, 0.05); opacity: 1; border-bottom: 3px solid var(--accent); font-size: 1.05rem; transform: scale(1.02); pointer-events: none; }
@@ -64,7 +71,6 @@
         .bg-danger { background: var(--danger); }
         .bg-secondary { background: var(--secondary); }
 
-        /* Повече margin-top за да има място за надписите */
         .number-line-container { position: relative; height: 110px; margin: 40px 0 25px 0; display: flex; align-items: center; overflow-x: auto; }
         .number-line { position: absolute; left: 5%; right: 5%; height: 2px; background: var(--primary); }
         .arrow { position: absolute; top: -4px; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
@@ -80,7 +86,6 @@
         
         .root-label { position: absolute; top: 20px; transform: translateX(-50%); font-weight: bold; font-family: 'Times New Roman', Times, serif; z-index: 5; background: rgba(255,255,255,0.85); padding: 2px 6px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         
-        /* Повдигнат текст на интервала (-65px вместо -45px) */
         .interval-label { position: absolute; top: -65px; transform: translateX(-50%); font-size: 0.95rem; font-weight: 500; color: var(--secondary); white-space: nowrap; z-index: 5; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
         .x-slider { position: absolute; left: 5%; width: 90%; top: 46px; -webkit-appearance: none; appearance: none; background: transparent; z-index: 10; cursor: pointer; margin: 0; }
@@ -94,13 +99,11 @@
         .x-slider::-moz-range-thumb:active { cursor: grabbing; transform: scale(1.15); }
         .x-slider::-moz-range-track { width: 100%; height: 2px; background: transparent; border: none; }
 
-        /* --- Стилове за легендата (ще се викат в подсказката) --- */
         .legend-container { display: flex; justify-content: center; gap: 25px; margin-bottom: 25px; padding: 10px; background: #fdfdfd; border-radius: 8px; border: 1px dashed var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .legend-item { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: var(--secondary); font-weight: 500; }
         .legend-circle { width: 12px; height: 12px; border-radius: 50%; background: var(--danger); box-shadow: 0 0 0 2px white, 0 0 0 3px var(--danger); }
         .legend-diamond { width: 12px; height: 12px; border-radius: 2px; background: var(--danger); transform: rotate(45deg); box-shadow: 0 0 0 2px white, 0 0 0 3px var(--danger); margin-left: 2px; }
 
-        /* --- Подобрена таблица --- */
         .table-responsive { overflow-x: auto; margin-bottom: 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); background: white; border: 1px solid var(--border); }
         table { width: 100%; border-collapse: collapse; min-width: 600px; background: white; }
         th, td { border: 1px solid var(--border); padding: 14px 12px; text-align: center; vertical-align: middle; transition: background-color 0.2s ease; }
@@ -183,26 +186,295 @@
         
         .stage-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 15px; }
 
+        /* ===== STEP-BY-STEP STYLES ===== */
+        .sbs-container {
+            background: #fff;
+            border: 2px solid var(--accent);
+            border-radius: 14px;
+            padding: 0;
+            margin-top: 30px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(52,152,219,0.12);
+            animation: slideUpFade 0.4s ease-out;
+        }
+        .sbs-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 16px 25px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .sbs-step {
+            padding: 22px 25px;
+            border-bottom: 1px solid var(--light);
+            animation: slideUpFade 0.35s ease-out;
+        }
+        .sbs-step:last-child { border-bottom: none; }
+        .sbs-step-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sbs-step-num {
+            background: var(--accent);
+            color: white;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .sbs-step-num.done { background: var(--success); }
+
+        /* Root input rows */
+        .sbs-root-rows { display: flex; flex-direction: column; gap: 12px; margin: 8px 0 14px 0; }
+        .sbs-root-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.15rem;
+        }
+        .sbs-root-row .factor-label {
+            background: rgba(231,76,60,0.08);
+            border: 2px solid var(--danger);
+            border-radius: 8px;
+            padding: 5px 14px;
+            font-weight: bold;
+            color: var(--danger);
+            white-space: nowrap;
+        }
+        .sbs-root-row .eq-zero { color: var(--secondary); font-weight: 600; white-space: nowrap; }
+        .sbs-root-row .arrow-sym { color: var(--accent); font-size: 1.3rem; }
+        .sbs-root-input-wrap { display: flex; align-items: center; gap: 6px; }
+        .sbs-root-input-wrap span { font-weight: 600; color: var(--primary); }
+        .sbs-root-input {
+            width: 72px;
+            text-align: center;
+            font-size: 1.15rem;
+            font-family: 'Times New Roman', serif;
+            padding: 6px 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .sbs-root-input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(52,152,219,0.2); }
+        .sbs-root-input.correct { border-color: var(--success); background: rgba(46,204,113,0.08); }
+        .sbs-root-input.wrong { border-color: var(--danger); background: rgba(231,76,60,0.08); animation: shake 0.35s ease; }
+        .sbs-root-feedback { font-size: 1.2rem; }
+
+        /* Number line */
+        .sbs-nl-appear { animation: slideUpFade 0.4s ease-out; }
+
+        /* Sign table */
+        .sbs-sign-table { width: 100%; border-collapse: collapse; margin: 12px 0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+        .sbs-sign-table th { background: var(--primary); color: white; padding: 10px 14px; font-size: 1rem; text-align: center; }
+        .sbs-sign-table td { border: 1px solid var(--border); padding: 10px 14px; text-align: center; font-size: 1rem; vertical-align: middle; }
+        .sbs-sign-table tr:nth-child(even) td { background: #f8fafc; }
+        .sbs-sign-cell { background: rgba(52,152,219,0.05) !important; }
+        .sbs-sign-cell .sign-group { justify-content: center; }
+        .sbs-sign-cell.cell-correct { background: rgba(46,204,113,0.15) !important; }
+        .sbs-sign-cell.cell-wrong { background: rgba(231,76,60,0.15) !important; }
+
+        /* Math keyboard */
+        .math-kbd {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 10px 0 6px 0;
+            padding: 12px 14px;
+            background: #f0f4f8;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .math-kbd button {
+            background: white;
+            border: 1.5px solid #c8d3dc;
+            border-radius: 7px;
+            padding: 7px 13px;
+            font-size: 1.05rem;
+            font-family: 'Times New Roman', serif;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.07);
+            min-width: 40px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .math-kbd button:hover { background: var(--accent); color: white; border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(52,152,219,0.25); }
+        .math-kbd button:active { transform: translateY(0); }
+        .math-kbd .kbd-sep { width: 1px; background: var(--border); margin: 0 4px; align-self: stretch; }
+        .math-kbd .kbd-del { color: var(--danger); border-color: rgba(231,76,60,0.3); }
+        .math-kbd .kbd-del:hover { background: var(--danger); color: white; border-color: var(--danger); }
+
+        .answer-display {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.3rem;
+            min-height: 52px;
+            padding: 10px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            min-width: 320px;
+            cursor: text;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+        .answer-display:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(52,152,219,0.2); }
+        .answer-display.correct { border-color: var(--success); background: rgba(46,204,113,0.07); }
+        .answer-display.wrong { border-color: var(--danger); background: rgba(231,76,60,0.07); animation: shake 0.35s ease; }
+        .answer-display .cursor-blink { display: inline-block; width: 2px; height: 1.1em; background: var(--primary); animation: blink 1s step-end infinite; vertical-align: text-bottom; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .answer-label-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+        .answer-label-row label { font-weight: 700; font-size: 1.1rem; font-family: 'Times New Roman', serif; color: var(--primary); white-space: nowrap; }
+
+        /* Feedback */
+        .feedback-emoji {
+            font-size: 2rem;
+            animation: popIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            flex-shrink: 0;
+        }
+        .feedback-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-top: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            animation: slideUpFade 0.3s ease-out;
+        }
+        .feedback-row.correct-fb { background: rgba(46,204,113,0.12); border: 1px solid rgba(46,204,113,0.4); color: #1e8449; }
+        .feedback-row.wrong-fb { background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); color: #922b21; }
+        .feedback-row.partial-fb { background: rgba(241,196,15,0.12); border: 1px solid rgba(241,196,15,0.4); color: #7d6608; }
+
+        .sbs-divider { border: none; border-top: 2px dashed var(--light); margin: 8px 0; }
+
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+
+        /* ===== ATTRACTIVE BUTTONS ===== */
+        .btn {
+            padding: 13px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            color: white;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0);
+            transition: background 0.2s;
+            border-radius: inherit;
+        }
+        .btn:hover::after { background: rgba(255,255,255,0.12); }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+        .btn:active { transform: translateY(1px); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db 0%, #1a6fa8 100%);
+            box-shadow: 0 4px 12px rgba(52,152,219,0.35);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71 0%, #1a9e52 100%);
+            box-shadow: 0 4px 12px rgba(46,204,113,0.35);
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #c07000 100%);
+            box-shadow: 0 4px 12px rgba(243,156,18,0.35);
+            color: #fff;
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #34495e 0%, #1e2d3d 100%);
+            box-shadow: 0 4px 12px rgba(52,73,94,0.3);
+        }
+        .btn-practice {
+            background: linear-gradient(135deg, #9b59b6 0%, #6c2e9c 100%);
+            box-shadow: 0 4px 14px rgba(155,89,182,0.4);
+            font-size: 1.15rem;
+            padding: 15px 36px;
+        }
+        .btn-outline {
+            background: white;
+            color: var(--secondary);
+            border: 2px solid var(--secondary);
+            box-shadow: none;
+        }
+        .btn-outline:hover { background: var(--secondary); color: white; }
+
+        /* Stage grid buttons */
+        .stage-btn {
+            background: linear-gradient(135deg, #3498db, #2471a3);
+            box-shadow: 0 4px 10px rgba(52,152,219,0.3);
+            border-radius: 10px;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 14px 10px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s;
+            letter-spacing: 0.3px;
+        }
+        .stage-btn:hover { transform: translateY(-4px); box-shadow: 0 8px 18px rgba(52,152,219,0.4); }
+        .stage-btn:active { transform: translateY(1px); }
+        .stage-btn.final { background: linear-gradient(135deg, #2ecc71, #1a9e52); box-shadow: 0 4px 10px rgba(46,204,113,0.35); }
+        .stage-btn.final:hover { box-shadow: 0 8px 18px rgba(46,204,113,0.45); }
+
         @media (max-width: 600px) {
             .mobile-label-even { transform: translateX(-50%) translateY(22px) !important; }
             .interval-label { display: none; } 
             .math-expr { font-size: 1.6rem; }
+            .answer-input-field { min-width: 200px; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Метод на интервалите</h1>
+    <header style="background: var(--primary); padding: 10px 20px; display:flex; justify-content:center; align-items:center; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+        <h1 style="margin:0; font-size:1.3rem; letter-spacing:1px; color:white; opacity:0.92;">Метод на интервалите</h1>
     </header>
 
     <div id="start-screen" class="container">
-        <div style="text-align: center;">
-            <img src="image_b22e00.jpg" alt="Метод на интервалите" style="max-width: 100%; height: auto; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.15);">
+        <!-- Hero image — full-width, tall, cinematic -->
+        <div style="margin: 16px 0 24px 0; border-radius: 18px; overflow: hidden; box-shadow: 0 14px 40px rgba(0,0,0,0.28); position: relative;">
+            <img src="image_b22e00.jpg" alt="Метод на интервалите"
+                 style="width:100%; max-height: 400px; min-height: 200px; object-fit:cover; object-position:center 28%; display:block;">
+            <div style="position:absolute; inset:0; background: linear-gradient(160deg, rgba(20,35,55,0.35) 0%, rgba(20,35,55,0.72) 100%);"></div>
+            <div style="position:absolute; inset:0; display:flex; flex-direction:column; justify-content:flex-end; padding: 28px 36px 32px 36px;">
+                <h2 style="margin:0 0 6px 0; color:white; font-size:2.4rem; font-weight:800; letter-spacing:1.5px; text-shadow:0 3px 12px rgba(0,0,0,0.7); line-height:1.15;">Метод на интервалите</h2>
+                <p style="margin:0; color:rgba(255,255,255,0.9); font-size:1.15rem; font-style:italic; text-shadow:0 1px 6px rgba(0,0,0,0.6); font-weight:500;">Открий как се променя знакът на функцията</p>
+            </div>
         </div>
-        
-        <h3 class="start-subtitle">Открий как се променя знакът.</h3>
-
         <div class="intro-box">
             <h2 style="margin-top: 0; text-align: center;">Добре дошли в тренажора!</h2>
             <p>Тук ще открием интуитивно как работи <strong>Методът на интервалите</strong> за решаване на неравенства.</p>
@@ -239,12 +511,17 @@
             <div class="config-stages">
                 <h3 style="margin-top: 0; color: var(--primary);">🚀 Избери откъде да започнеш</h3>
                 <div class="stage-grid">
-                    <button class="btn btn-primary" onclick="startFromStage(1)">Етап 1</button>
-                    <button class="btn btn-primary" onclick="startFromStage(2)">Етап 2</button>
-                    <button class="btn btn-primary" onclick="startFromStage(3)">Етап 3</button>
-                    <button class="btn btn-primary" onclick="startFromStage(4)">Етап 4</button>
-                    <button class="btn btn-primary" onclick="startFromStage(5)">Етап 5</button>
-                    <button class="btn btn-success" onclick="startFromStage(6)">Финал</button>
+                    <button class="stage-btn" onclick="startFromStage(1)">Етап 1</button>
+                    <button class="stage-btn" onclick="startFromStage(2)">Етап 2</button>
+                    <button class="stage-btn" onclick="startFromStage(3)">Етап 3</button>
+                    <button class="stage-btn" onclick="startFromStage(4)">Етап 4</button>
+                    <button class="stage-btn" onclick="startFromStage(5)">Етап 5</button>
+                    <button class="stage-btn final" onclick="startFromStage(6)">Финал</button>
+                </div>
+                <div style="margin-top: 18px; text-align: center;">
+                    <button class="btn btn-practice" onclick="goToPractice()" style="width:100%; font-size:1.15rem;">
+                        🎲 Практика — Генератор на задачи
+                    </button>
                 </div>
             </div>
         </div>
@@ -252,7 +529,7 @@
         <div style="margin: 20px auto; border: 1px solid var(--border); padding: 15px 30px; border-radius: 8px; background: #f8f9fa; max-width: 600px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
             <p style="margin: 0; font-size: 1.1rem; color: var(--primary);">
                 <strong>Идея и педагогически избори:</strong> Валя Витковска<br>
-                <strong>Реализация:</strong> Gemini &middot; 2026
+                <strong>Реализация:</strong> Gemini &middot; Claude &middot; 2026
             </p>
         </div>
     </div>
@@ -402,23 +679,56 @@
                 </div>
             </div>
 
+            <!-- GENERATOR BOX -->
             <div class="panel generator-box">
                 <h3 style="color: var(--primary); margin-top: 0;">🎲 Генератор на неравенства (Практика)</h3>
-                <p style="font-size: 1.05rem;">Избери брой линейни множители и генерирай ново неравенство (строго или нестрого). Реши го на лист, след което провери графиката и отговора!</p>
+                <p style="font-size: 1.05rem;">Избери брой линейни множители и генерирай ново неравенство. Реши го на лист или използвай режима <strong>Стъпка по стъпка</strong>!</p>
                 
-                <div style="margin: 25px 0; background: #f8f9fa; padding: 20px; border-radius: 10px; display: inline-block; border: 1px solid var(--light); box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);">
-                    <label style="font-weight: 600; margin-right: 15px; font-size: 1.1rem;">Брой множители: </label>
-                    <select id="gen-factors-count" style="padding: 10px; font-size: 1.05rem; border-radius: 6px; border: 1px solid #ccc; outline: none;">
-                        <option value="2">2 множителя</option>
-                        <option value="3" selected>3 множителя</option>
-                        <option value="4">4 множителя</option>
-                    </select>
-                    <button class="btn btn-primary" style="margin-left: 20px;" onclick="generatePracticeInequality()">Генерирай задача</button>
+                <div style="margin: 25px 0; background: #f8f9fa; padding: 20px; border-radius: 10px; display: inline-flex; flex-wrap:wrap; gap:16px; align-items:center; border: 1px solid var(--light); box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);">
+                    <div>
+                        <label style="font-weight: 600; margin-right: 10px; font-size: 1.05rem;">Брой множители:</label>
+                        <select id="gen-factors-count" style="padding: 10px; font-size: 1.05rem; border-radius: 6px; border: 1px solid #ccc; outline: none;">
+                            <option value="2">2</option>
+                            <option value="3" selected>3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <label style="font-weight:600; font-size:1.05rem; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox" id="gen-use-powers" checked
+                                style="width:18px; height:18px; accent-color:var(--accent); cursor:pointer;">
+                            Включи степени
+                        </label>
+                    </div>
+                    <div id="gen-power-opts" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                        <label style="font-size:0.95rem; color:var(--secondary); display:flex; align-items:center; gap:5px; cursor:pointer;">
+                            <input type="checkbox" id="gen-pow2" checked style="accent-color:var(--accent);"> квадрат ²
+                        </label>
+                        <label style="font-size:0.95rem; color:var(--secondary); display:flex; align-items:center; gap:5px; cursor:pointer;">
+                            <input type="checkbox" id="gen-pow3" checked style="accent-color:var(--accent);"> куб ³
+                        </label>
+                        <label style="font-size:0.95rem; color:var(--secondary); display:flex; align-items:center; gap:5px; cursor:pointer;">
+                            <input type="checkbox" id="gen-pow4" checked style="accent-color:var(--accent);"> четвърта ⁴
+                        </label>
+                    </div>
+                    <button class="btn btn-primary" onclick="generatePracticeInequality()" style="padding:10px 24px;">🎲 Генерирай</button>
                 </div>
+                <script>
+                    document.getElementById('gen-use-powers').addEventListener('change', function() {
+                        document.getElementById('gen-power-opts').style.opacity = this.checked ? '1' : '0.35';
+                        document.getElementById('gen-power-opts').style.pointerEvents = this.checked ? '' : 'none';
+                    });
+                </script>
 
                 <div id="gen-problem-area" class="hidden">
                     <div class="gen-display" id="gen-expression"></div>
-                    <button class="btn btn-warning" id="btn-show-ans" onclick="showGeneratorAnswer()" style="font-size: 1.15rem; padding: 12px 30px;">Покажи решението</button>
+
+                    <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-bottom: 10px;">
+                        <button class="btn btn-warning" id="btn-show-ans" onclick="showGeneratorAnswer()" style="font-size: 1.1rem; padding: 12px 28px;">👁️ Покажи решението</button>
+                        <button class="btn btn-primary" id="btn-step-by-step" onclick="toggleStepByStep()" style="font-size: 1.1rem; padding: 12px 28px;">📋 Стъпка по стъпка</button>
+                    </div>
                     
                     <div id="gen-answer-area" class="hidden" style="margin-top: 30px; text-align: center;">
                         <div id="gen-number-line"></div>
@@ -426,6 +736,9 @@
                             <span class="gen-answer" id="gen-answer-text"></span>
                         </div>
                     </div>
+
+                    <!-- STEP BY STEP AREA -->
+                    <div id="sbs-area" class="hidden"></div>
                 </div>
             </div>
 
@@ -444,8 +757,14 @@
         tasksPerStage: 4, 
         intervalsDrawn: false,
         generatorSolution: "",
+        generatorSolutionParts: [],
         generatorFactors: null,
-        generatorIneqSign: ""
+        generatorIneqSign: "",
+        sbsState: {
+            active: false,
+            signAnswers: {},
+            answerSubmitted: false
+        }
     };
 
     function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
@@ -465,6 +784,19 @@
         }
     }
 
+    function goToPractice() {
+        document.getElementById('start-screen').classList.add('hidden');
+        showFinalScreen();
+        // Auto-open the extended final (practice) section
+        setTimeout(() => {
+            document.getElementById('final-rule-block').classList.add('hidden');
+            document.getElementById('extended-final').classList.remove('hidden');
+            renderStaticExample('static-ex-1', [{a:-1,b:3,power:1,root:3}, {a:2,b:5,power:1,root:-2.5}], '>');
+            renderStaticExample('static-ex-2', [{a:1,b:-1,power:1,root:1}, {a:1,b:3,power:1,root:-3}, {a:2,b:-4,power:1,root:2}], '<=');
+            generatePracticeInequality();
+        }, 50);
+    }
+
     function generateFactors(stage, taskIndex) {
         let factors = []; 
         let roots = [];
@@ -476,14 +808,11 @@
                 let aChoices = allowAnot1 ? [1, -1, 2, -2] : [1, -1];
                 a = aChoices[getRandomInt(0, aChoices.length - 1)];
                 b = getRandomInt(-10, 10);
-                
                 if (b === 0 && getRandomInt(0,2) !== 0) b = getRandomInt(1, 10) * (getRandomInt(0,1)?1:-1);
-                
                 r = -b / a;
                 attempts++;
                 if(attempts > 50) { a=1; b=roots.length*2+1; r=-b; }
             } while (roots.includes(r));
-            
             roots.push(r);
             return { a: a, b: b, root: r };
         };
@@ -500,20 +829,16 @@
         else if (stage === 4) {
             let type = (taskIndex % 4) + 1; 
             let f1 = getUniqueFactorObj(true); f1.power = 2; 
-            
             if (type === 1) { 
                 factors.push(f1); 
                 let f2 = getUniqueFactorObj(true); f2.power = 1; factors.push(f2); 
-            }
-            else if (type === 2) { 
+            } else if (type === 2) { 
                 factors.push(f1); 
                 let f2 = getUniqueFactorObj(true); f2.power = 3; factors.push(f2); 
-            }
-            else if (type === 3) { 
+            } else if (type === 3) { 
                 let f3 = getUniqueFactorObj(true); f3.power = 3; factors.push(f3);
                 let f4 = getUniqueFactorObj(true); f4.power = 1; factors.push(f4);
-            }
-            else { 
+            } else { 
                 let f3 = getUniqueFactorObj(true); f3.power = 3; factors.push(f3);
                 let f4 = getUniqueFactorObj(true); f4.power = 3; factors.push(f4); 
             }
@@ -527,24 +852,37 @@
             }
         }
         
+        // Fix leading coefficient sign targeting
         let targetNegativeLeading = (taskIndex % 2 === 1);
-        let currentLeadSign = 1;
-        factors.forEach(f => {
-            if (f.a < 0 && f.power % 2 !== 0) currentLeadSign = -currentLeadSign;
-        });
-        
+        let currentLeadSign = computeLeadSign(factors);
         let isCurrentlyNegativeLeading = (currentLeadSign < 0);
         
         if (isCurrentlyNegativeLeading !== targetNegativeLeading) {
+            // Find any odd-power factor to flip
             let oddFactor = factors.find(f => f.power % 2 !== 0);
             if (oddFactor) {
                 oddFactor.a = -oddFactor.a;
                 oddFactor.b = -oddFactor.b;
+                oddFactor.root = -oddFactor.b / oddFactor.a;
             }
+            // If no odd-power factor exists, the sign can't be changed — that's fine
         }
 
         factors.sort((f1, f2) => f1.root - f2.root);
         return factors;
+    }
+
+    // FIX 1: Correct leading sign computation using baseValue sign
+    function computeLeadSign(factors) {
+        // Sign at x → +∞: each factor (ax+b) → sign of a
+        let sign = 1;
+        factors.forEach(f => {
+            // At large positive x, ax+b has same sign as a
+            let baseSign = f.a > 0 ? 1 : -1;
+            // Raise to power: negative base with odd power → negative; even power → positive
+            if (baseSign < 0 && f.power % 2 !== 0) sign = -sign;
+        });
+        return sign;
     }
 
     function formatFactor(f) {
@@ -558,10 +896,14 @@
         } else if (f.a === -1) {
             if (f.b === 0) base = "(−x)";
             else base = f.b > 0 ? `(${absB} − x)` : `(−x − ${absB})`;
-        } else {
+        } else if (f.a > 0) {
             if (f.b === 0) base = `(${f.a}x)`;
-            else if (f.a > 0) base = f.b > 0 ? `(${f.a}x + ${absB})` : `(${f.a}x − ${absB})`;
-            else base = f.b > 0 ? `(${absB} − ${absA}x)` : `(−${absA}x − ${absB})`;
+            else base = f.b > 0 ? `(${f.a}x + ${absB})` : `(${f.a}x − ${absB})`;
+        } else {
+            // f.a < 0, |f.a| >= 2
+            if (f.b === 0) base = `(−${absA}x)`;
+            else if (f.b > 0) base = `(${absB} − ${absA}x)`;
+            else base = `(−${absA}x − ${absB})`;
         }
         if (f.power > 1) return `${base}<sup>${f.power}</sup>`;
         return base;
@@ -585,38 +927,35 @@
             else testVal = (start + end) / 2;
             
             testVal = parseFloat(testVal.toFixed(2)); 
-            
             intervals.push({ start, end, text: `(${startStr}; ${endStr})`, testValue: testVal });
         }
         return { uniqueRoots, intervals };
     }
 
+    // FIX 2: Correct sign evaluation — check baseValue sign, then apply power
     function evaluateFactorSign(factor, x) {
         let baseValue = factor.a * x + factor.b;
-        let val = Math.pow(baseValue, factor.power);
-        if (val > 0) return 'plus';
-        if (val < 0) return 'minus';
-        return 'zero';
+        if (Math.abs(baseValue) < 1e-9) return 'zero';
+        // Raise to power correctly
+        let sign = baseValue > 0 ? 1 : -1;
+        // Odd power preserves sign, even power makes positive
+        if (factor.power % 2 === 0) return 'plus';
+        return sign > 0 ? 'plus' : 'minus';
     }
 
+    // FIX 3: Correct product sign — use base value sign and power parity
     function evaluateProductSign(factors, x) {
-        let isPositive = true;
-        let isZero = false;
-
+        let sign = 1;
         for (let f of factors) {
             let baseValue = f.a * x + f.b;
-            if (baseValue === 0) {
-                isZero = true;
-                break;
-            }
-            let val = Math.pow(baseValue, f.power);
-            if (val < 0) {
-                isPositive = !isPositive; 
+            if (Math.abs(baseValue) < 1e-9) return 'zero';
+            let baseSign = baseValue > 0 ? 1 : -1;
+            // Even power → always positive contribution; odd power → preserves baseSign
+            if (f.power % 2 !== 0 && baseSign < 0) {
+                sign = -sign;
             }
         }
-
-        if (isZero) return 'zero';
-        return isPositive ? 'plus' : 'minus';
+        return sign > 0 ? 'plus' : 'minus';
     }
 
     function updateLiveCalc() {
@@ -628,7 +967,8 @@
         
         let exactVal = 1;
         for (let f of state.problem.factors) {
-            exactVal *= Math.pow(f.a * x + f.b, f.power);
+            let base = f.a * x + f.b;
+            exactVal *= Math.pow(base, f.power);
         }
 
         if (Math.abs(exactVal) < 0.0001) exactVal = 0;
@@ -637,7 +977,7 @@
         let colorClass = exactVal > 0 ? 'text-success' : (exactVal < 0 ? 'text-danger' : 'text-secondary');
         let bgClass = exactVal > 0 ? 'bg-success' : (exactVal < 0 ? 'bg-danger' : 'bg-secondary');
 
-        let valStr = exactVal;
+        let valStr;
         if (Math.abs(exactVal) > 1000 || (Math.abs(exactVal) < 0.01 && exactVal !== 0)) {
             valStr = exactVal.toExponential(2); 
         } else {
@@ -683,7 +1023,6 @@
         document.getElementById('btn-hint').classList.toggle('hidden', !state.hintsEnabled);
 
         let taskIndex = state.stageProgress[state.stage] || 0;
-
         let factors = generateFactors(state.stage, taskIndex);
         let { uniqueRoots, intervals } = buildIntervals(factors);
         state.problem = { factors, uniqueRoots, intervals };
@@ -698,7 +1037,7 @@
 
         let rootsMap = {};
         state.problem.factors.forEach(f => {
-            let r = -f.b / f.a;
+            let r = f.root;
             rootsMap[r.toFixed(4)] = (rootsMap[r.toFixed(4)] || 0) + f.power;
         });
 
@@ -724,9 +1063,7 @@
             
             let label = document.createElement('div'); 
             label.className = 'root-label'; 
-            
             if (index % 2 !== 0) label.classList.add('mobile-label-even');
-            
             label.style.left = `${percent}%`; 
             label.innerText = parseFloat(r.toFixed(2));
             rootsContainer.appendChild(marker); rootsContainer.appendChild(label);
@@ -807,7 +1144,8 @@
                 let cell = document.getElementById(`cell-${rIdx}-${cIdx}`);
                 if (!user) anyEmpty = true;
                 if (user === expected) { cell.classList.add('cell-correct'); cell.classList.remove('cell-wrong'); } 
-                else if (user) { cell.classList.add('cell-wrong'); cell.classList.remove('cell-correct'); allCorrect = false; } else allCorrect = false;
+                else if (user) { cell.classList.add('cell-wrong'); cell.classList.remove('cell-correct'); allCorrect = false; } 
+                else allCorrect = false;
             });
             if (state.problem.factors.length > 1) {
                 let expected = evaluateProductSign(state.problem.factors, x); 
@@ -815,7 +1153,8 @@
                 let cell = document.getElementById(`cell-${rIdx}-prod`);
                 if (!user) anyEmpty = true;
                 if (user === expected) { cell.classList.add('cell-correct'); cell.classList.remove('cell-wrong'); } 
-                else if (user) { cell.classList.add('cell-wrong'); cell.classList.remove('cell-correct'); allCorrect = false; } else allCorrect = false;
+                else if (user) { cell.classList.add('cell-wrong'); cell.classList.remove('cell-correct'); allCorrect = false; } 
+                else allCorrect = false;
             }
         });
         
@@ -843,7 +1182,7 @@
         let minR = state.problem.uniqueRoots[0]; let maxR = state.problem.uniqueRoots[state.problem.uniqueRoots.length - 1];
         let padding = Math.max(4, (maxR - minR) * 0.3); if(padding<2) padding=2;
         let range = (maxR + padding) - (minR - padding);
-        let rootXs = state.problem.uniqueRoots.map(r => { return ((r - (minR - padding)) / range) * width; });
+        let rootXs = state.problem.uniqueRoots.map(r => ((r - (minR - padding)) / range) * width);
         let points = [0, ...rootXs, width]; let lineY = 55;
 
         state.problem.intervals.forEach((inv, i) => {
@@ -890,7 +1229,6 @@
         let cell = document.getElementById(`cell-${targetR}-${targetC}`);
         let hintBox = document.getElementById('hint-box'); hintBox.classList.remove('hidden');
 
-        // Генерираме HTML на легендата, който да се вгради в подсказката
         let legendHtml = `
             <div class="legend-container" style="margin-top: 15px; margin-bottom: 0; background: transparent; border: none; box-shadow: none; padding: 0; border-top: 1px dashed rgba(52, 152, 219, 0.4); padding-top: 15px;">
                 <div class="legend-item">
@@ -938,8 +1276,7 @@
         state.stageProgress[state.stage]++;
         if (state.stageProgress[state.stage] >= state.tasksPerStage) {
             if (state.stage < 5) loadStage(state.stage + 1); else showFinalScreen(); 
-        } 
-        else {
+        } else {
             updateProgressUI();
             generateNewProblem();
         }
@@ -967,8 +1304,8 @@
             document.getElementById('btn-finish-rule').classList.add('hidden');
             document.getElementById('extended-final').classList.remove('hidden');
             
-            renderStaticExample('static-ex-1', [{a:-1,b:3,power:1}, {a:2,b:5,power:1}], '>');
-            renderStaticExample('static-ex-2', [{a:1,b:-1,power:1}, {a:1,b:3,power:1}, {a:2,b:-4,power:1}], '<=');
+            renderStaticExample('static-ex-1', [{a:-1,b:3,power:1,root:3}, {a:2,b:5,power:1,root:-2.5}], '>');
+            renderStaticExample('static-ex-2', [{a:1,b:-1,power:1,root:1}, {a:1,b:3,power:1,root:-3}, {a:2,b:-4,power:1,root:2}], '<=');
 
             generatePracticeInequality();
         } else { 
@@ -977,7 +1314,10 @@
         }
     }
 
-    function drawStaticNumberLine(containerId, factors, ineqSign) {
+    // =============================================
+    // STATIC NUMBER LINE (FIX 4: use requestAnimationFrame for width)
+    // =============================================
+    function drawStaticNumberLine(containerId, factors, ineqSign, callback) {
         const container = document.getElementById(containerId);
         container.innerHTML = `
             <div class="static-nl-container">
@@ -987,23 +1327,33 @@
                     <div class="roots-box"></div>
                 </div>
             </div>`;
-        
+
+        // FIX 4: Use requestAnimationFrame to ensure DOM is laid out before measuring width
+        requestAnimationFrame(() => {
+            _drawStaticNLContent(container, factors, ineqSign);
+            if (callback) callback();
+        });
+    }
+
+    function _drawStaticNLContent(container, factors, ineqSign) {
         let svg = container.querySelector('svg');
         let rootsBox = container.querySelector('.roots-box');
-        let width = container.querySelector('.number-line').offsetWidth;
-        if(width === 0) width = 600;
+        let nlEl = container.querySelector('.number-line');
+        let width = nlEl ? nlEl.offsetWidth : 0;
+        if (width === 0) width = 600;
 
         let rootsMap = {};
         factors.forEach(f => {
-            let r = -f.b / f.a;
-            rootsMap[r.toFixed(4)] = (rootsMap[r.toFixed(4)] || 0) + f.power;
+            let r = f.root !== undefined ? f.root : (-f.b / f.a);
+            let key = r.toFixed(4);
+            rootsMap[key] = (rootsMap[key] || 0) + f.power;
         });
 
-        let roots = [...new Set(factors.map(f => -f.b/f.a))].sort((a,b) => a-b);
-        if(roots.length === 0) return;
+        let roots = [...new Set(factors.map(f => f.root !== undefined ? f.root : (-f.b/f.a)))].sort((a,b) => a-b);
+        if (roots.length === 0) return;
 
         let minR = roots[0], maxR = roots[roots.length - 1];
-        let padding = Math.max(4, (maxR - minR) * 0.3); if(padding < 2) padding = 2;
+        let padding = Math.max(4, (maxR - minR) * 0.3); if (padding < 2) padding = 2;
         let range = (maxR + padding) - (minR - padding);
 
         let isStrict = (ineqSign === '>' || ineqSign === '<');
@@ -1030,20 +1380,11 @@
         });
         points.push(width);
 
-        let leadCoeff = 1; factors.forEach(f => leadCoeff *= Math.pow(f.a, f.power));
-        let currentPlus = (leadCoeff > 0);
-        
-        let intervals = [];
-        intervals.push({ isPlus: currentPlus });
-        for(let i = roots.length - 1; i >= 0; i--) {
-            let totalPower = rootsMap[roots[i].toFixed(4)];
-            if (totalPower % 2 !== 0) currentPlus = !currentPlus;
-            intervals.push({ isPlus: currentPlus });
-        }
-        intervals.reverse(); 
+        // Compute intervals from right to left using power parity
+        let signIntervals = computeStaticIntervalSigns(factors, roots, rootsMap);
 
         let lineY = 55;
-        intervals.forEach((inv, i) => {
+        signIntervals.forEach((inv, i) => {
             let x1 = points[i]; let x2 = points[i+1]; let midX = (x1 + x2) / 2;
             let isPlus = inv.isPlus;
             let curveY = isPlus ? 10 : 100;
@@ -1063,70 +1404,156 @@
         });
     }
 
+    // Compute sign in each interval correctly using lead sign + power parity
+    function computeStaticIntervalSigns(factors, sortedRoots, rootsMap) {
+        // Rightmost interval sign = lead sign at x→+∞
+        let leadSign = computeLeadSign(factors);
+        let currentPlus = (leadSign > 0);
+        
+        let intervals = [];
+        // Build from right to left
+        intervals.push({ isPlus: currentPlus }); // rightmost
+        for (let i = sortedRoots.length - 1; i >= 0; i--) {
+            let r = sortedRoots[i];
+            let totalPower = rootsMap[r.toFixed(4)];
+            if (totalPower % 2 !== 0) {
+                currentPlus = !currentPlus; // odd power: sign flips
+            }
+            // even power: sign stays
+            intervals.push({ isPlus: currentPlus });
+        }
+        intervals.reverse();
+        return intervals;
+    }
+
     function renderStaticExample(containerId, factors, ineqSign) {
         drawStaticNumberLine(containerId, factors, ineqSign);
     }
 
+    // =============================================
+    // PRACTICE GENERATOR
+    // =============================================
     function generatePracticeInequality() {
-        let count = parseInt(document.getElementById('gen-factors-count').value);
-        let roots = [];
-        while(roots.length < count) {
-            let r = getRandomInt(-6, 6);
-            if(!roots.includes(r)) roots.push(r);
-        }
-        roots.sort((a,b) => a - b);
-
-        let signs = ['&gt;', '&lt;', '&ge;', '&le;'];
-        let logicSigns = ['>', '<', '>=', '<='];
-        let rIndex = getRandomInt(0, 3);
-        let ineqSignText = signs[rIndex];
-        state.generatorIneqSign = logicSigns[rIndex];
-
-        let factors = roots.map(r => {
-            let a = getRandomInt(0, 2) === 0 ? -1 : 1; 
-            let b = -r * a;
-            return { a: a, b: b, power: 1, root: r };
-        });
-        state.generatorFactors = factors;
-
-        let exprStr = formatExpression(factors) + ` ${ineqSignText} 0`;
-
-        document.getElementById('gen-expression').innerHTML = exprStr;
-        document.getElementById('gen-problem-area').classList.remove('hidden');
+        // Reset step-by-step
+        state.sbsState = { active: false, signAnswers: {}, answerSubmitted: false };
+        document.getElementById('sbs-area').classList.add('hidden');
+        document.getElementById('sbs-area').innerHTML = '';
         document.getElementById('gen-answer-area').classList.add('hidden');
         document.getElementById('btn-show-ans').classList.remove('hidden');
-        document.getElementById('gen-number-line').innerHTML = ''; 
+        const btnSbs = document.getElementById('btn-step-by-step');
+        if (btnSbs) btnSbs.textContent = '📋 Стъпка по стъпка';
+
+        let count = parseInt(document.getElementById('gen-factors-count').value);
+        const usePowers = document.getElementById('gen-use-powers')?.checked ?? true;
+        const allowPow2 = document.getElementById('gen-pow2')?.checked ?? true;
+        const allowPow3 = document.getElementById('gen-pow3')?.checked ?? true;
+        const allowPow4 = document.getElementById('gen-pow4')?.checked ?? true;
+
+        // Build pool of allowed powers for random draw
+        let powerPool = [1, 1]; // power=1 always available with weight
+        if (usePowers) {
+            if (allowPow2) powerPool.push(2);
+            if (allowPow3) powerPool.push(3);
+            if (allowPow4) powerPool.push(4);
+        }
+
+        // Generate unique roots in [-7, 7]
+        let roots = [];
+        let attempts = 0;
+        while (roots.length < count && attempts < 200) {
+            let r = getRandomInt(-7, 7);
+            if (!roots.includes(r)) roots.push(r);
+            attempts++;
+        }
+        roots.sort((a, b) => a - b);
+
+        // Inequality sign
+        let signs    = ['&gt;', '&lt;', '&ge;', '&le;'];
+        let logicSigns = ['>', '<', '>=', '<='];
+        let rIndex = getRandomInt(0, 3);
+        state.generatorIneqSign = logicSigns[rIndex];
+        let ineqSignText = signs[rIndex];
+
+        // Assign powers — each factor independently draws from powerPool
+        // Guarantee at least one power > 1 if usePowers is on and pool has options
+        let higherPowersAvail = powerPool.filter(p => p > 1);
+
+        let factors = roots.map((r) => {
+            let a = getRandomInt(0, 2) === 0 ? -1 : 1;
+            let b = -r * a;
+            let power = powerPool[getRandomInt(0, powerPool.length - 1)];
+            return { a, b, power, root: r };
+        });
+
+        // If usePowers is on but all ended up power=1, force one random factor to a higher power
+        if (usePowers && higherPowersAvail.length > 0 && factors.every(f => f.power === 1)) {
+            let idx = getRandomInt(0, factors.length - 1);
+            factors[idx].power = higherPowersAvail[getRandomInt(0, higherPowersAvail.length - 1)];
+        }
+
+        state.generatorFactors = factors;
+
+        // Build rootsMap: root → total power (for sign computation and number line)
+        let rootsMap = {};
+        factors.forEach(f => {
+            let key = f.root.toFixed(4);
+            rootsMap[key] = (rootsMap[key] || 0) + f.power;
+        });
+
+        let exprStr = formatExpression(factors) + ` ${ineqSignText} 0`;
+        document.getElementById('gen-expression').innerHTML = exprStr;
+        document.getElementById('gen-problem-area').classList.remove('hidden');
+        document.getElementById('gen-number-line').innerHTML = '';
+
+        // Compute interval signs using correct rootsMap (respects even/odd powers)
+        let signIntervals = computeStaticIntervalSigns(factors, roots, rootsMap);
 
         let isStrict = (state.generatorIneqSign === '>' || state.generatorIneqSign === '<');
         let wantPlus = (state.generatorIneqSign === '>' || state.generatorIneqSign === '>=');
 
-        let leadCoeff = 1; factors.forEach(f => leadCoeff *= f.a);
-        let currentPlus = (leadCoeff > 0);
-        
-        let allIntervals = [];
-        allIntervals.push({ start: roots[roots.length - 1], end: Infinity, isPlus: currentPlus });
-        for(let i = roots.length - 1; i > 0; i--) {
-            currentPlus = !currentPlus; 
-            allIntervals.push({ start: roots[i-1], end: roots[i], isPlus: currentPlus });
-        }
-        currentPlus = !currentPlus;
-        allIntervals.push({ start: -Infinity, end: roots[0], isPlus: currentPlus });
-
-        allIntervals.reverse();
-
         let solParts = [];
-        for (let inv of allIntervals) {
+        for (let i = 0; i < roots.length + 1; i++) {
+            let inv = signIntervals[i];
+            let start = i === 0 ? -Infinity : roots[i - 1];
+            let end   = i === roots.length ? Infinity : roots[i];
+
             if (inv.isPlus === wantPlus) {
-                let sBracket = (isStrict || inv.start === -Infinity) ? '(' : '[';
-                let eBracket = (isStrict || inv.end === Infinity) ? ')' : ']';
-                let sStr = inv.start === -Infinity ? '−∞' : inv.start;
-                let eStr = inv.end === Infinity ? '+∞' : inv.end;
+                let sBracket = (isStrict || start === -Infinity) ? '(' : '[';
+                let eBracket = (isStrict || end === Infinity)   ? ')' : ']';
+                let sStr = start === -Infinity ? '−∞' : start;
+                let eStr = end   === Infinity  ? '+∞' : end;
                 solParts.push(`${sBracket}${sStr}; ${eStr}${eBracket}`);
+            } else if (!isStrict && i < roots.length) {
+                // Non-strict: isolated even-power roots (sign doesn't change → zero point included)
+                let r = roots[i];
+                let rPow = rootsMap[r.toFixed(4)] || 1;
+                if (rPow % 2 === 0) {
+                    // Only add as isolated point if NOT already covered by an adjacent chosen interval
+                    let alreadyCovered = solParts.some(s => {
+                        let m = s.match(/([(\[])(-?[\d∞]+(?:\.\d+)?)\s*;\s*(-?[\d∞]+(?:\.\d+)?)([)\]])/);
+                        if (!m) return false;
+                        let lo = m[2] === '−∞' ? -Infinity : parseFloat(m[2]);
+                        let hi = m[3] === '+∞' ?  Infinity : parseFloat(m[3]);
+                        let loIn = m[1] === '[', hiIn = m[4] === ']';
+                        return (loIn ? r >= lo : r > lo) && (hiIn ? r <= hi : r < hi);
+                    });
+                    if (!alreadyCovered) solParts.push(`[${r}; ${r}]`);
+                }
             }
         }
 
+        // Sort by left endpoint
+        solParts.sort((a, b) => {
+            let na = a.startsWith('(−∞') || a.startsWith('[-∞') ? -Infinity :
+                     parseFloat(a.match(/-?\d+(\.\d+)?/)?.[0] ?? '0');
+            let nb = b.startsWith('(−∞') || b.startsWith('[-∞') ? -Infinity :
+                     parseFloat(b.match(/-?\d+(\.\d+)?/)?.[0] ?? '0');
+            return na - nb;
+        });
+
         let finalSolStr = solParts.length > 0 ? `x ∈ ${solParts.join(' ∪ ')}` : 'Няма решение';
         state.generatorSolution = finalSolStr;
+        state.generatorSolutionParts = solParts;
     }
 
     function showGeneratorAnswer() {
@@ -1134,9 +1561,573 @@
         document.getElementById('gen-answer-area').classList.remove('hidden');
         document.getElementById('btn-show-ans').classList.add('hidden');
         
+        drawStaticNumberLine('gen-number-line', state.generatorFactors, state.generatorIneqSign);
+    }
+
+    // =============================================
+    // STEP-BY-STEP MODE
+    // =============================================
+    function toggleStepByStep() {
+        const sbsArea = document.getElementById('sbs-area');
+        if (state.sbsState.active) {
+            state.sbsState.active = false;
+            sbsArea.classList.add('hidden');
+            sbsArea.innerHTML = '';
+            document.getElementById('btn-step-by-step').textContent = '📋 Стъпка по стъпка';
+        } else {
+            state.sbsState.active = true;
+            state.sbsState.signAnswers = {};
+            state.sbsState.answerSubmitted = false;
+            document.getElementById('btn-step-by-step').textContent = '✕ Затвори';
+            sbsArea.classList.remove('hidden');
+            buildStepByStep();
+        }
+    }
+
+    // =============================================
+    // STEP-BY-STEP — fully interactive
+    // =============================================
+    function buildStepByStep() {
+        const factors = state.generatorFactors;
+        const ineqSign = state.generatorIneqSign;
+        const sbsArea = document.getElementById('sbs-area');
+
+        let roots = factors.map(f => f.root).sort((a,b) => a-b);
+        // Use actual factor powers in rootsMap
+        let rootsMap = {};
+        factors.forEach(f => {
+            let key = f.root.toFixed(4);
+            rootsMap[key] = (rootsMap[key] || 0) + f.power;
+        });
+        let signIntervals = computeStaticIntervalSigns(factors, roots, rootsMap);
+        let isStrict = ineqSign === '>' || ineqSign === '<';
+        let wantPlus = ineqSign === '>' || ineqSign === '>=';
+
+        let intervals = [];
+        for (let i = 0; i <= roots.length; i++) {
+            let start = i === 0 ? -Infinity : roots[i-1];
+            let end = i === roots.length ? Infinity : roots[i];
+            let startStr = start === -Infinity ? '−∞' : start;
+            let endStr = end === Infinity ? '+∞' : end;
+            intervals.push({ start, end, text: `(${startStr}; ${endStr})`, isPlus: signIntervals[i].isPlus });
+        }
+
+        let ineqDisplayMap = {'>':'&gt;', '<':'&lt;', '>=':'&ge;', '<=':'&le;'};
+        let exprHTML = formatExpression(factors) + ` ${ineqDisplayMap[ineqSign]} 0`;
+
+        // Step 1: one input field per factor
+        let rootInputRows = factors.map((f, fi) => {
+            let powerNote = f.power > 1
+                ? `<span style="font-size:0.82rem; color:var(--secondary); margin-left:4px;">(степен ${f.power} — корен само 1)</span>`
+                : '';
+            return `
+            <div class="sbs-root-row" id="sbs-root-row-${fi}">
+                <span class="factor-label">${formatFactor(f)}</span>
+                <span class="eq-zero">= 0</span>
+                <span class="arrow-sym">⟹</span>
+                <div class="sbs-root-input-wrap">
+                    <span><i>x</i> =</span>
+                    <input type="text" class="sbs-root-input" id="sbs-root-input-${fi}"
+                        inputmode="decimal" autocomplete="off" placeholder="?"
+                        onkeydown="if(event.key==='Enter'){sbsCheckRoots();}">
+                    <span class="sbs-root-feedback" id="sbs-root-fb-${fi}"></span>
+                    ${powerNote}
+                </div>
+            </div>`;
+        }).join('');
+
+        let html = `
+        <div class="sbs-container">
+            <div class="sbs-header">📋 Решение стъпка по стъпка &nbsp;|&nbsp;
+                <span style="font-style:italic; font-weight:400; opacity:0.9;">${exprHTML}</span>
+            </div>
+
+            <!-- STEP 1: roots input -->
+            <div class="sbs-step" id="sbs-s1">
+                <div class="sbs-step-title">
+                    <div class="sbs-step-num" id="sbs-num-1">1</div>
+                    Намери корените — приравни всеки множител на нула
+                </div>
+                <p style="margin:0 0 12px; color:var(--secondary); font-size:0.95rem;">
+                    ${isStrict
+                        ? 'Неравенството е <strong>строго</strong> (&gt; или &lt;) → корените <strong>не</strong> влизат в решението (празни точки ○).'
+                        : 'Неравенството е <strong>нестрого</strong> (≥ или ≤) → корените <strong>влизат</strong> в решението (запълнени точки ●).'}
+                </p>
+                <div class="sbs-root-rows">${rootInputRows}</div>
+                <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                    <button class="btn btn-primary" onclick="sbsCheckRoots()" id="sbs-btn-roots">✔️ Провери корените</button>
+                    <span id="sbs-roots-feedback"></span>
+                </div>
+            </div>
+
+            <!-- STEP 2+3: number line with sign boxes — revealed after roots ok -->
+            <div class="sbs-step sbs-nl-appear" id="sbs-s23" style="display:none;">
+                <div class="sbs-step-title">
+                    <div class="sbs-step-num" id="sbs-num-2">2</div>
+                    Постави знак на <i>f(x)</i> в интервалите
+                </div>
+                <p style="margin:0 0 6px; color:var(--secondary); font-size:0.95rem;">
+                    Знакът в <strong>най-десния интервал</strong> = знакът на <strong>старшия коефициент</strong>.
+                    При нечетна степен коренът <em>сменя</em> знака; при четна — <em>запазва</em> го.
+                </p>
+                <!-- number line with embedded sign inputs -->
+                <div id="sbs-nl-sign-area" style="margin: 10px 0 18px 0;"></div>
+                <div style="margin-top:10px; text-align:center;">
+                    <button class="btn btn-primary" onclick="sbsCheckSigns()" id="sbs-btn-check-signs">✔️ Провери знаците</button>
+                </div>
+                <div id="sbs-signs-feedback"></div>
+            </div>
+
+            <!-- STEP 3 (final answer) — revealed after signs ok -->
+            <div class="sbs-step" id="sbs-s4" style="display:none;">
+                <div class="sbs-step-title">
+                    <div class="sbs-step-num" id="sbs-num-4">3</div>
+                    Запиши решението
+                </div>
+                <p style="margin:0 0 6px; color:var(--secondary); font-size:0.95rem;">
+                    Търсим интервалите, където <i>f(x)</i>&nbsp;${ineqDisplayMap[ineqSign]}&nbsp;0
+                    — т.е. интервалите със знак <strong>${wantPlus ? '+' : '−'}</strong>.
+                    ${isStrict ? 'Корените не влизат → кръгли скоби&nbsp;( ).' : 'Корените влизат → квадратни скоби&nbsp;[ ].'}
+                </p>
+                <div class="math-kbd" id="sbs-kbd">
+                    <button onclick="kbdInsert('(')"><b>(</b></button>
+                    <button onclick="kbdInsert(')')"><b>)</b></button>
+                    <button onclick="kbdInsert('[')"><b>[</b></button>
+                    <button onclick="kbdInsert(']')"><b>]</b></button>
+                    <div class="kbd-sep"></div>
+                    <button onclick="kbdInsert('; ')"><b>;</b></button>
+                    <button onclick="kbdInsert(' ∪ ')"><b>∪</b></button>
+                    <div class="kbd-sep"></div>
+                    <button onclick="kbdInsert('−∞')"><b>−∞</b></button>
+                    <button onclick="kbdInsert('+∞')"><b>+∞</b></button>
+                    <div class="kbd-sep"></div>
+                    ${roots.map(r => `<button onclick="kbdInsert('${r}')">${r}</button>`).join('')}
+                    <div class="kbd-sep"></div>
+                    <button onclick="kbdInsert('−')">−</button>
+                    <button class="kbd-del" onclick="kbdDelete()">⌫</button>
+                    <button class="kbd-del" onclick="kbdClear()" style="font-size:0.85rem;">Изчисти</button>
+                </div>
+
+                <div class="answer-label-row">
+                    <label><i>x</i> ∈</label>
+                    <div class="answer-display" id="sbs-answer-display" onclick="document.getElementById('sbs-hidden-input').focus()">
+                        <span id="sbs-answer-text"></span><span class="cursor-blink" id="sbs-cursor"></span>
+                    </div>
+                    <button class="btn btn-success" onclick="sbsCheckAnswer()">✔️ Провери</button>
+                </div>
+                <input type="text" id="sbs-hidden-input"
+                    style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;"
+                    oninput="sbsSyncFromHidden()" onkeydown="sbsKeydown(event)">
+
+                <div id="sbs-answer-feedback" style="margin-top:8px;"></div>
+            </div>
+        </div>`;
+
+        sbsArea.innerHTML = html;
+
+        // Store state
+        state.sbsState.intervals = intervals;
+        state.sbsState.wantPlus = wantPlus;
+        state.sbsState.isStrict = isStrict;
+        state.sbsState.roots = roots;
+        state.sbsState.rootsMap = rootsMap;
+        state.sbsState.factors = factors;
+        state.sbsState.ineqSign = ineqSign;
+        state.sbsState.answerText = '';
+        state.sbsState.answerSubmitted = false;
+
+        // Focus first root input
         setTimeout(() => {
-            drawStaticNumberLine('gen-number-line', state.generatorFactors, state.generatorIneqSign);
-        }, 50);
+            const fi = document.getElementById('sbs-root-input-0');
+            if (fi) fi.focus();
+        }, 100);
+    }
+
+    // Build the number-line-with-sign-boxes SVG+HTML combo
+    function buildNLSignArea(containerId) {
+        const factors = state.sbsState.factors;
+        const ineqSign = state.sbsState.ineqSign;
+        const intervals = state.sbsState.intervals;
+        const roots = state.sbsState.roots;
+        const isStrict = state.sbsState.isStrict;
+
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        // We'll use a responsive SVG + absolutely positioned sign buttons
+        // Layout: outer wrapper, inside: number-line div (position:relative)
+
+        let minR = roots[0], maxR = roots[roots.length - 1];
+        let padding = Math.max(4, (maxR - minR) * 0.3); if (padding < 2) padding = 2;
+        // For many roots, ensure enough padding
+        if (roots.length >= 5) padding = Math.max(padding, 3);
+
+        container.innerHTML = `
+            <div id="sbs-nl-wrapper" style="position:relative; min-height:160px; margin: 20px 0 10px 0; overflow:visible;">
+                <!-- Number line bar -->
+                <div id="sbs-nl-bar" style="position:absolute; left:7%; right:7%; top:80px; height:2px; background:var(--primary);">
+                    <div style="position:absolute; top:-4px; right:-10px; width:0; height:0;
+                         border-top:5px solid transparent; border-bottom:5px solid transparent;
+                         border-left:10px solid var(--primary);"></div>
+                    <svg id="sbs-nl-svg" style="position:absolute; top:-79px; left:0; overflow:visible; pointer-events:none;"
+                         width="100%" height="160px"></svg>
+                    <div id="sbs-nl-roots-layer"></div>
+                </div>
+                <!-- Sign input boxes row — absolutely positioned between roots -->
+                <div id="sbs-sign-boxes-row" style="position:absolute; left:7%; right:7%; top:20px; height:52px;"></div>
+            </div>`;
+
+        // Wait for layout then place everything
+        requestAnimationFrame(() => {
+            const bar = document.getElementById('sbs-nl-bar');
+            const W = bar ? bar.offsetWidth : 600;
+
+            const range = (maxR + padding) - (minR - padding);
+
+            const toPercent = r => ((r - (minR - padding)) / range) * 100;
+            const toPx = r => toPercent(r) / 100 * W;
+
+            const rootsLayer = document.getElementById('sbs-nl-roots-layer');
+            const signRow = document.getElementById('sbs-sign-boxes-row');
+
+            // Draw root markers + labels
+            const rootsMap = state.sbsState.rootsMap || {};
+            roots.forEach((r, idx) => {
+                let pct = toPercent(r);
+                let totalPow = rootsMap[r.toFixed(4)] || 1;
+                let shapeClass = (totalPow % 2 === 0) ? 'even-root' : 'odd-root';
+
+                let marker = document.createElement('div');
+                marker.className = `root-marker ${shapeClass} ${isStrict ? 'strict' : 'non-strict'}`;
+                marker.style.left = `${pct}%`;
+                rootsLayer.appendChild(marker);
+
+                let lbl = document.createElement('div');
+                lbl.className = 'root-label';
+                lbl.style.left = `${pct}%`;
+                lbl.style.top = '16px';
+                lbl.textContent = parseFloat(r.toFixed(2));
+                rootsLayer.appendChild(lbl);
+            });
+
+            // Compute interval center positions
+            let points = [0, ...roots.map(r => toPx(r)), W];
+
+            // Sign input boxes — one per interval, centered
+            intervals.forEach((inv, i) => {
+                let x1 = points[i], x2 = points[i + 1];
+                let centerPct = ((x1 + x2) / 2) / W * 100;
+
+                let box = document.createElement('div');
+                box.style.cssText = `position:absolute; left:${centerPct}%; transform:translateX(-50%);
+                    top:0; display:flex; flex-direction:column; align-items:center; gap:2px; z-index:10;`;
+
+                box.innerHTML = `
+                    <div id="sbs-sign-indicator-${i}" style="font-size:1.6rem; font-weight:900; height:30px; line-height:30px; color:#bdc3c7;">?</div>
+                    <div class="sign-group" style="gap:4px;">
+                        <button class="btn-sign" style="width:38px;height:36px;font-size:1.2rem;"
+                            onclick="sbsSelectSign(${i},'plus')">+</button>
+                        <button class="btn-sign" style="width:38px;height:36px;font-size:1.2rem;"
+                            onclick="sbsSelectSign(${i},'minus')">−</button>
+                    </div>`;
+
+                signRow.appendChild(box);
+            });
+
+            // Store sign button refs for later coloring
+            state.sbsState._signBoxCount = intervals.length;
+        });
+    }
+
+    // --- STEP 1: Check roots ---
+    function sbsCheckRoots() {
+        const factors = state.sbsState.factors;
+        let allCorrect = true, anyEmpty = false;
+
+        factors.forEach((f, fi) => {
+            const input = document.getElementById(`sbs-root-input-${fi}`);
+            const fb = document.getElementById(`sbs-root-fb-${fi}`);
+            const val = input.value.trim().replace(',', '.').replace('−', '-');
+            if (val === '') { anyEmpty = true; input.classList.add('wrong'); fb.textContent = ''; return; }
+            const num = parseFloat(val);
+            const expected = parseFloat(f.root.toFixed(6));
+            if (Math.abs(num - expected) < 0.001) {
+                input.classList.add('correct'); input.classList.remove('wrong');
+                fb.textContent = '✅';
+            } else {
+                input.classList.add('wrong'); input.classList.remove('correct');
+                fb.textContent = '❌';
+                allCorrect = false;
+            }
+        });
+
+        const rootsFb = document.getElementById('sbs-roots-feedback');
+
+        if (anyEmpty) {
+            rootsFb.innerHTML = `<span class="feedback-row partial-fb" style="display:inline-flex; padding:6px 12px; margin:0;">🤔 Попълни всички полета!</span>`;
+            return;
+        }
+        if (allCorrect) {
+            rootsFb.innerHTML = `<span style="color:var(--success); font-weight:700; font-size:1.05rem;">🎉 Правилно!</span>`;
+            document.getElementById('sbs-btn-roots').classList.add('hidden');
+            document.getElementById('sbs-num-1').classList.add('done');
+
+            // Show merged step 2+3
+            const s23 = document.getElementById('sbs-s23');
+            s23.style.display = '';
+            // Build number line with sign boxes
+            requestAnimationFrame(() => {
+                buildNLSignArea('sbs-nl-sign-area');
+                s23.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            });
+        } else {
+            rootsFb.innerHTML = `<span style="color:var(--danger); font-weight:600;">❌ Има грешни корени. Провери изчисленията.</span>`;
+        }
+    }
+
+    // --- STEP 2: Sign selection on number line ---
+    function sbsSelectSign(idx, sign) {
+        // Update button styling
+        const signRow = document.getElementById('sbs-sign-boxes-row');
+        if (!signRow) return;
+        const boxes = signRow.children;
+        if (!boxes[idx]) return;
+        const btns = boxes[idx].querySelectorAll('.btn-sign');
+        btns.forEach(b => b.classList.remove('selected-plus', 'selected-minus'));
+        if (sign === 'plus') btns[0].classList.add('selected-plus');
+        if (sign === 'minus') btns[1].classList.add('selected-minus');
+
+        // Update the ? indicator
+        const indicator = document.getElementById(`sbs-sign-indicator-${idx}`);
+        if (indicator) {
+            indicator.textContent = sign === 'plus' ? '+' : '−';
+            indicator.style.color = sign === 'plus' ? 'var(--success)' : 'var(--danger)';
+        }
+
+        state.sbsState.signAnswers[idx] = sign;
+    }
+
+    function sbsCheckSigns() {
+        const intervals = state.sbsState.intervals;
+        let allCorrect = true, anyEmpty = false;
+
+        intervals.forEach((inv, i) => {
+            let expected = inv.isPlus ? 'plus' : 'minus';
+            let user = state.sbsState.signAnswers[i];
+            const indicator = document.getElementById(`sbs-sign-indicator-${i}`);
+            if (!user) { anyEmpty = true; return; }
+            if (user === expected) {
+                if (indicator) { indicator.style.color = 'var(--success)'; indicator.textContent = user === 'plus' ? '+' : '−'; }
+            } else {
+                if (indicator) { indicator.style.color = 'var(--danger)'; indicator.textContent = '✗'; }
+                allCorrect = false;
+            }
+        });
+
+        const fb = document.getElementById('sbs-signs-feedback');
+
+        if (anyEmpty) {
+            fb.innerHTML = `<div class="feedback-row partial-fb"><span class="feedback-emoji">🤔</span> Постави знак за всеки интервал!</div>`;
+            return;
+        }
+        if (allCorrect) {
+            fb.innerHTML = `<div class="feedback-row correct-fb"><span class="feedback-emoji">🎉</span> Знаците са верни! Виж оцветените интервали и продължи.</div>`;
+            document.getElementById('sbs-btn-check-signs').classList.add('hidden');
+            document.getElementById('sbs-num-2').classList.add('done');
+
+            // Hide the sign input boxes
+            const signRow = document.getElementById('sbs-sign-boxes-row');
+            if (signRow) {
+                signRow.style.transition = 'opacity 0.4s ease';
+                signRow.style.opacity = '0';
+                setTimeout(() => { signRow.style.display = 'none'; }, 400);
+            }
+
+            // Draw arcs on the SVG
+            drawSBSArcs();
+
+            // Reveal answer step
+            const s4 = document.getElementById('sbs-s4');
+            s4.style.display = '';
+            setTimeout(() => {
+                s4.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                document.getElementById('sbs-hidden-input').focus();
+            }, 300);
+        } else {
+            fb.innerHTML = `<div class="feedback-row wrong-fb"><span class="feedback-emoji">😕</span> Има грешни знаци. Знакът вдясно = старши коефициент; нечетна степен корен сменя знака.</div>`;
+        }
+    }
+
+    // Draw colored arcs over the number line after signs confirmed correct
+    function drawSBSArcs() {
+        const svg = document.getElementById('sbs-nl-svg');
+        const bar = document.getElementById('sbs-nl-bar');
+        if (!svg || !bar) return;
+
+        const W = bar.offsetWidth;
+        const intervals = state.sbsState.intervals;
+        const roots = state.sbsState.roots;
+
+        let minR = roots[0], maxR = roots[roots.length - 1];
+        let padding = Math.max(4, (maxR - minR) * 0.3); if (padding < 2) padding = 2;
+        if (roots.length >= 5) padding = Math.max(padding, 3);
+        const range = (maxR + padding) - (minR - padding);
+        const toPx = r => ((r - (minR - padding)) / range) * W;
+
+        let points = [0, ...roots.map(r => toPx(r)), W];
+        const lineY = 79; // matches top:80px offset - 1
+
+        svg.innerHTML = '';
+
+        intervals.forEach((inv, i) => {
+            let x1 = points[i], x2 = points[i + 1];
+            let midX = (x1 + x2) / 2;
+            let isPlus = inv.isPlus;
+            let curveY = isPlus ? 20 : 138;
+
+            let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', `M ${x1} ${lineY} Q ${midX} ${curveY} ${x2} ${lineY}`);
+            path.setAttribute('fill', isPlus ? 'rgba(46,204,113,0.25)' : 'rgba(231,76,60,0.25)');
+            path.setAttribute('stroke', isPlus ? '#2ecc71' : '#e74c3c');
+            path.setAttribute('stroke-width', '2.5');
+            path.style.animation = 'fadeIn 0.5s ease-out';
+
+            let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', midX);
+            text.setAttribute('y', isPlus ? 50 : 115);
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('dominant-baseline', 'middle');
+            text.setAttribute('font-size', '22');
+            text.setAttribute('font-weight', 'bold');
+            text.setAttribute('fill', isPlus ? '#27ae60' : '#c0392b');
+            text.setAttribute('opacity', '0');
+            text.textContent = isPlus ? '+' : '−';
+            text.style.animation = 'fadeIn 0.6s ease-out 0.2s forwards';
+
+            svg.appendChild(path);
+            svg.appendChild(text);
+        });
+    }
+
+    // --- STEP 4: Math keyboard & answer ---
+    function kbdInsert(ch) {
+        if (state.sbsState.answerSubmitted) return;
+        state.sbsState.answerText += ch;
+        sbsRefreshDisplay();
+        document.getElementById('sbs-hidden-input').focus();
+    }
+    function kbdDelete() {
+        if (state.sbsState.answerSubmitted) return;
+        // Delete last "token" — handle multi-char symbols
+        let t = state.sbsState.answerText;
+        if (t.endsWith('−∞')) t = t.slice(0, -2);
+        else if (t.endsWith('+∞')) t = t.slice(0, -2);
+        else if (t.endsWith(' ∪ ')) t = t.slice(0, -3);
+        else if (t.endsWith('; ')) t = t.slice(0, -2);
+        else if (t.length > 0) t = t.slice(0, -1);
+        state.sbsState.answerText = t;
+        sbsRefreshDisplay();
+    }
+    function kbdClear() {
+        if (state.sbsState.answerSubmitted) return;
+        state.sbsState.answerText = '';
+        sbsRefreshDisplay();
+        const d = document.getElementById('sbs-answer-display');
+        d.classList.remove('correct','wrong');
+        document.getElementById('sbs-answer-feedback').innerHTML = '';
+    }
+    function sbsRefreshDisplay() {
+        const span = document.getElementById('sbs-answer-text');
+        if (span) span.textContent = state.sbsState.answerText;
+        // sync hidden input
+        const hi = document.getElementById('sbs-hidden-input');
+        if (hi) hi.value = state.sbsState.answerText;
+    }
+    function sbsSyncFromHidden() {
+        // Allow typing directly (e.g. from mobile physical keyboard)
+        if (state.sbsState.answerSubmitted) return;
+        const hi = document.getElementById('sbs-hidden-input');
+        state.sbsState.answerText = hi.value;
+        sbsRefreshDisplay();
+    }
+    function sbsKeydown(e) {
+        if (e.key === 'Enter') { sbsCheckAnswer(); e.preventDefault(); }
+        if (e.key === 'Backspace') {
+            e.preventDefault();
+            kbdDelete();
+        }
+    }
+
+    function sbsCheckAnswer() {
+        if (state.sbsState.answerSubmitted) return;
+
+        const userRaw = state.sbsState.answerText.trim();
+        const display = document.getElementById('sbs-answer-display');
+        const fb = document.getElementById('sbs-answer-feedback');
+
+        if (!userRaw) {
+            fb.innerHTML = `<div class="feedback-row partial-fb"><span class="feedback-emoji">🤔</span> Въведи отговор с клавиатурата!</div>`;
+            return;
+        }
+
+        const normalize = (s) => s
+            .replace(/\s+/g, '')
+            .replace(/∪/g, 'U')
+            .replace(/−/g, '-').replace(/–/g, '-')
+            .replace(/\+∞/g, '+inf').replace(/−∞|-∞/g, '-inf').replace(/∞/g, 'inf')
+            .replace(/[,;]/g, ';')
+            .toLowerCase();
+
+        const userNorm = normalize(userRaw);
+        const correctRaw = state.generatorSolution.replace(/^x\s*∈\s*/,'').replace(/^x∈/,'');
+        const correctNorm = normalize(correctRaw);
+
+        const userParts = userNorm.split('U').map(s => s.trim()).sort();
+        const correctParts = correctNorm.split('U').map(s => s.trim()).sort();
+        const isCorrect = JSON.stringify(userParts) === JSON.stringify(correctParts);
+
+        if (isCorrect) {
+            display.classList.add('correct'); display.classList.remove('wrong');
+            state.sbsState.answerSubmitted = true;
+            document.getElementById('sbs-num-4').classList.add('done');            const emojis = ['🏆','🎊','⭐','🥇','✅','🎯','🌟'];
+            const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+            fb.innerHTML = `<div class="feedback-row correct-fb">
+                <span class="feedback-emoji">${emoji}</span>
+                <div><strong>Браво! Верен отговор!</strong><br>
+                <span style="font-family:'Times New Roman',serif; font-size:1.1rem;"><i>x</i> ∈ ${correctRaw}</span></div>
+            </div>`;
+        } else {
+            display.classList.add('wrong'); display.classList.remove('correct');
+            setTimeout(() => display.classList.remove('wrong'), 600);
+
+            const correctCount = userParts.filter(p => correctParts.includes(p)).length;
+            let hint = correctCount > 0 && correctCount < correctParts.length
+                ? ` Намерил си ${correctCount} от ${correctParts.length} интервала правилно.` : '';
+
+            fb.innerHTML = `<div class="feedback-row wrong-fb">
+                <span class="feedback-emoji">❌</span>
+                <div>Не е точно.${hint} Провери вида на скобите и кои интервали имат нужния знак.
+                <br><button class="btn btn-warning" style="margin-top:8px; padding:6px 16px; font-size:0.9rem;" onclick="sbsRevealAnswer()">💡 Покажи правилния отговор</button>
+                </div>
+            </div>`;
+        }
+    }
+
+    function sbsRevealAnswer() {
+        state.sbsState.answerSubmitted = true;
+        const correctRaw = state.generatorSolution.replace(/^x\s*∈\s*/,'').replace(/^x∈/,'');
+        state.sbsState.answerText = correctRaw;
+        sbsRefreshDisplay();
+        const display = document.getElementById('sbs-answer-display');
+        display.classList.remove('wrong'); display.classList.add('correct');
+        document.getElementById('sbs-answer-feedback').innerHTML = `
+            <div class="feedback-row partial-fb">
+                <span class="feedback-emoji">📖</span>
+                <div><strong>Правилен отговор:</strong><br>
+                <span style="font-family:'Times New Roman',serif; font-size:1.1rem;"><i>x</i> ∈ ${correctRaw}</span><br>
+                <span style="font-size:0.88rem; color:#666;">Разгледай знаковата схема и провери логиката.</span>
+                </div>
+            </div>`;
     }
 </script>
 </body>
